@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useId, useRef, useState } from 'react';
 import { Upload, FileText, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-const ACCEPT = '.pdf,.docx,.doc';
+// Extensions + MIME types so mobile and desktop both open the right picker
+const ACCEPT = '.pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword';
 const MAX_MB = 10;
 
 interface FileUploaderProps {
@@ -15,6 +16,7 @@ interface FileUploaderProps {
 }
 
 export function FileUploader({ onTextExtracted, disabled, onError }: FileUploaderProps) {
+  const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [extracting, setExtracting] = useState(false);
 
@@ -59,20 +61,29 @@ export function FileUploader({ onTextExtracted, disabled, onError }: FileUploade
 
   return (
     <Card
-      onClick={() => !disabled && !extracting && inputRef.current?.click()}
       className={cn(
-        'relative cursor-pointer transition-all duration-200 border-dashed hover:border-foreground/30 hover:bg-muted/50 hover:shadow-sm',
+        'relative transition-all duration-200 border-dashed hover:border-foreground/30 hover:bg-muted/50 hover:shadow-sm',
         (disabled || extracting) && 'opacity-50 pointer-events-none'
       )}
     >
       <input
+        id={inputId}
         ref={inputRef}
         type="file"
         accept={ACCEPT}
         onChange={handleChange}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        disabled={disabled || extracting}
+        className="sr-only"
+        aria-label="Upload PDF or Word document"
       />
-      <CardContent className="flex flex-col items-center justify-center py-8 px-6 text-center pointer-events-none">
+      <label
+        htmlFor={inputId}
+        className={cn(
+          'flex flex-col cursor-pointer min-h-[120px]',
+          (disabled || extracting) && 'pointer-events-none'
+        )}
+      >
+        <CardContent className="flex flex-col items-center justify-center py-8 px-6 text-center pointer-events-none">
         {extracting ? (
           <>
             <Loader2 className="w-10 h-10 text-foreground animate-spin mb-3" />
@@ -90,7 +101,8 @@ export function FileUploader({ onTextExtracted, disabled, onError }: FileUploade
             <p className="text-sm text-muted-foreground">Max {MAX_MB}MB · PDF, DOCX supported</p>
           </>
         )}
-      </CardContent>
+        </CardContent>
+      </label>
     </Card>
   );
 }
