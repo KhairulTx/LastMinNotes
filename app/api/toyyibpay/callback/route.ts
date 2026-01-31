@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCallbackPayload } from '@/lib/payments/toyyibpay';
-import { setPaymentVerified } from '@/lib/session-store';
-import { setPaymentVerifiedKV } from '@/lib/kv-session';
 
 /**
  * ToyyibPay callback (POST). Called by ToyyibPay when payment is completed.
- * Payload: refno, status (1=success), billcode, order_id (our sessionId), amount
- * On success: mark payment verified. Flashcards are generated on first unlock request.
+ * No Redis. We just acknowledge so ToyyibPay is happy; payment is verified via getBillTransactions when user hits /unlock.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -28,23 +25,6 @@ export async function POST(request: NextRequest) {
     if (!verifyCallbackPayload({ ...payload, status, amount })) {
       return new NextResponse('Payment verification failed', { status: 400 });
     }
-
-    // ToyyibPay may send our sessionId in order_id, ref1, ref2, or billExternalReferenceNo
-    const sessionId = [
-      payload.order_id,
-      payload.ref1,
-      payload.ref2,
-      payload.referenceNo,
-      payload.billExternalReferenceNo,
-    ]
-      .find((v) => typeof v === 'string' && v.trim().length > 0)
-      ?.trim();
-    if (!sessionId) {
-      return new NextResponse('Missing order_id/ref1', { status: 400 });
-    }
-
-    setPaymentVerified(sessionId);
-    await setPaymentVerifiedKV(sessionId);
     return new NextResponse('OK', { status: 200 });
   } catch (e) {
     console.error('Callback error:', e);

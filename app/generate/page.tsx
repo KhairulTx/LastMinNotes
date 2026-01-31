@@ -42,7 +42,6 @@ export default function GeneratePage() {
     setError(null);
     try {
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      // Use API route so Redis write runs in same serverless context as unlock/callback (fixes session expired after payment).
       const res = await fetch('/api/initiate-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,8 +53,12 @@ export default function GeneratePage() {
         setPaying(false);
         return;
       }
-      if (data.url) window.location.href = data.url;
-      else {
+      if (data.url && data.orderId) {
+        try {
+          localStorage.setItem(`lastmin_notes_${data.orderId}`, text);
+        } catch (_) {}
+        window.location.href = data.url;
+      } else {
         setError('No redirect URL received');
         setPaying(false);
       }

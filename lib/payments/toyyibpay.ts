@@ -179,3 +179,30 @@ export function verifyCallbackPayload(payload: {
   if (amountCent < 100) return false; // RM1 = 100 cent
   return true;
 }
+
+/** Get Bill Transactions – verify payment. billpaymentStatus: 1=success, 2=pending, 3=fail, 4=pending */
+export async function getBillTransactions(
+  billCode: string,
+  billpaymentStatus?: '1' | '2' | '3' | '4'
+): Promise<Array<{ billExternalReferenceNo?: string; billpaymentStatus?: string }>> {
+  const userSecretKey =
+    process.env.TOYYIBPAY_USER_SECRET_KEY ||
+    process.env.TOYYIBPAY_USER_SECRET ||
+    process.env.TOYYIBPAY_SECRET_KEY;
+  if (!userSecretKey) throw new Error('ToyyibPay not configured');
+
+  const form = new URLSearchParams({
+    userSecretKey,
+    billCode: billCode.trim(),
+    ...(billpaymentStatus ? { billpaymentStatus } : {}),
+  });
+
+  const res = await fetch(`${TOYYIBPAY_API}/getBillTransactions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: form.toString(),
+  });
+  const json = await res.json();
+  if (!Array.isArray(json)) return [];
+  return json;
+}
