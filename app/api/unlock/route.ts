@@ -20,7 +20,7 @@ import { generateFlashcards } from '@/lib/ai/flashcard';
  * Pay-first flow: if flashcards don't exist yet, we generate them from pending notes.
  */
 export async function GET(request: NextRequest) {
-  const sessionId = request.nextUrl.searchParams.get('session');
+  const sessionId = request.nextUrl.searchParams.get('session')?.trim();
   if (!sessionId) {
     return NextResponse.json({ error: 'session required' }, { status: 400 });
   }

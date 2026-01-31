@@ -10,22 +10,37 @@ import { setPaymentVerifiedKV } from '@/lib/kv-session';
  */
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const payload = {
-      refno: formData.get('refno') as string,
-      status: String(formData.get('status') ?? formData.get('status_id') ?? ''),
-      billcode: formData.get('billcode') as string,
-      order_id: (formData.get('order_id') as string) ?? (formData.get('ref1') as string),
-      amount: formData.get('amount') as string,
-    };
+    let payload: Record<string, string>;
+    const contentType = request.headers.get('content-type') ?? '';
+    if (contentType.includes('application/json')) {
+      const body = await request.json().catch(() => ({}));
+      payload = typeof body === 'object' && body !== null ? body : {};
+    } else {
+      const formData = await request.formData();
+      payload = Array.from(formData.entries()).reduce(
+        (acc, [k, v]) => ({ ...acc, [k]: String(v ?? '') }),
+        {} as Record<string, string>
+      );
+    }
 
-    if (!verifyCallbackPayload(payload)) {
+    const status = String(payload.status ?? payload.status_id ?? '');
+    const amount = String(payload.amount ?? '');
+    if (!verifyCallbackPayload({ ...payload, status, amount })) {
       return new NextResponse('Payment verification failed', { status: 400 });
     }
 
-    const sessionId = payload.order_id;
+    // ToyyibPay may send our sessionId in order_id, ref1, ref2, or billExternalReferenceNo
+    const sessionId = [
+      payload.order_id,
+      payload.ref1,
+      payload.ref2,
+      payload.referenceNo,
+      payload.billExternalReferenceNo,
+    ]
+      .find((v) => typeof v === 'string' && v.trim().length > 0)
+      ?.trim();
     if (!sessionId) {
-      return new NextResponse('Missing order_id', { status: 400 });
+      return new NextResponse('Missing order_id/ref1', { status: 400 });
     }
 
     setPaymentVerified(sessionId);

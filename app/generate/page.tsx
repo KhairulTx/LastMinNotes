@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { FileText, Zap } from 'lucide-react';
-import { initiatePayment, getSamplePreview } from './actions';
+import { getSamplePreview } from './actions';
 import { TextInput } from './components/TextInput';
 import { FileUploader } from './components/FileUploader';
 import { PreviewCards } from './components/PreviewCards';
@@ -42,13 +42,23 @@ export default function GeneratePage() {
     setError(null);
     try {
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      const result = await initiatePayment(text, origin);
-      if (!result.ok) {
-        setError(result.error);
+      // Use API route so Redis write runs in same serverless context as unlock/callback (fixes session expired after payment).
+      const res = await fetch('/api/initiate-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, returnUrlBase: origin }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setError(data.error || 'Payment initiation failed');
         setPaying(false);
         return;
       }
-      window.location.href = result.url;
+      if (data.url) window.location.href = data.url;
+      else {
+        setError('No redirect URL received');
+        setPaying(false);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Payment failed');
       setPaying(false);
