@@ -3,7 +3,7 @@
 import { summarizeForExam } from '@/lib/ai/summarize';
 import { generateFlashcards } from '@/lib/ai/flashcard';
 import { setSession, setPendingNotes, setPaymentVerified } from '@/lib/session-store';
-import { setPendingNotesKV, getPendingNotesKV, setPaymentVerifiedKV } from '@/lib/kv-session';
+import { setPendingNotesKV, setPaymentVerifiedKV, isRedisConfigured } from '@/lib/kv-session';
 import { writeTestPendingNotes } from '@/lib/test-pending-notes';
 import { normalizeText } from '@/lib/apify/client';
 import { SAMPLE_FLASHCARDS } from '@/lib/sample-flashcards';
@@ -30,21 +30,21 @@ export async function initiatePayment(rawText: string, returnUrlBase: string): P
   try {
     const sessionId = generateSessionId();
     setPendingNotes(sessionId, text);
-    // Persist notes so unlock API can read after payment (different serverless instance). Use KV in production; file only in test mode (Vercel fs is read-only).
+    // In production, require Redis so session persists after payment redirect. Block payment if not configured.
+    if (process.env.SKIP_PAYMENT_FOR_TEST !== '1') {
+      const redisOk = await isRedisConfigured();
+      if (!redisOk) {
+        return {
+          ok: false,
+          error: "Session storage is not set up. In Vercel: Project → Storage → Create Database (KV) → Connect to this project (Production). Or add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in Settings → Environment Variables for Production, then redeploy.",
+        };
+      }
+    }
+
+    // Persist notes so unlock API can read after payment (different serverless instance).
     await setPendingNotesKV(sessionId, text);
     if (process.env.SKIP_PAYMENT_FOR_TEST === '1') {
       await writeTestPendingNotes(sessionId, text);
-    }
-
-    // In production, never redirect to payment unless we can read back the session (proves Redis is working).
-    if (process.env.SKIP_PAYMENT_FOR_TEST !== '1') {
-      const stored = await getPendingNotesKV(sessionId);
-      if (!stored) {
-        return {
-          ok: false,
-          error: "We couldn't save your session. Please try again. (If this keeps happening, add Upstash Redis: set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in your server environment.)",
-        };
-      }
     }
 
     // --- TEST MODE: skip real payment, go straight to unlock (set SKIP_PAYMENT_FOR_TEST=1 in .env.local). ---

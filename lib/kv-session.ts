@@ -18,8 +18,15 @@ let redisClient: RedisLike | null | undefined;
 
 async function getRedis(): Promise<RedisLike | null> {
   if (redisClient !== undefined) return redisClient ?? null;
-  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Support: default (no prefix), UPSTASH_*, or Vercel KV custom prefix (e.g. KVLASTMIN_)
+  const url =
+    process.env.KV_REST_API_URL ??
+    process.env.UPSTASH_REDIS_REST_URL ??
+    process.env.KVLASTMIN_KV_REST_API_URL;
+  const token =
+    process.env.KV_REST_API_TOKEN ??
+    process.env.UPSTASH_REDIS_REST_TOKEN ??
+    process.env.KVLASTMIN_KV_REST_API_TOKEN;
   if (!url || !token) {
     redisClient = null;
     return null;

@@ -25,6 +25,10 @@
    | `UPSTASH_REDIS_REST_URL` | Your Upstash Redis URL |
    | `UPSTASH_REDIS_REST_TOKEN` | Your Upstash Redis token |
 
+   **Session storage (Redis) is required** so your session survives the payment redirect. Without it you get "Session storage is not set up" before payment and "Session expired" after payment. Two options:
+   - **Vercel KV:** Project → **Storage** → **Create Database** → choose **KV** (Upstash) → **Connect** to this project and select **Production**.
+   - **Manual:** Create a database at [upstash.com](https://upstash.com), copy REST URL and token, add as `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in Environment Variables for **Production**.
+
 4. **Redeploy**  
    **Deployments** → open the **⋯** on the latest deployment → **Redeploy**. This applies the new env vars.
 
