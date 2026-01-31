@@ -1,47 +1,38 @@
 # LastMin Notes
 
 **Turn your notes into exam-ready flashcards in under 2 minutes.**  
-Paste or upload your study material → AI summarizes and generates flashcards → Pay RM1 → Unlock, study, and download. No sign-up. Mobile-first. Feel free to use and adapt this project for your own learning tools or demos.
+Paste or upload your study material → AI summarizes → Pay RM1 → Unlock, study & download. No sign-up. Mobile-first. Built for last-minute revision.
 
 ---
 
-## What is this?
+## Free to Use
 
-LastMin Notes is a **pay-per-use AI revision web app** for last-minute exam prep. It’s built for students who want to:
-
-- Convert lecture notes, slides, or PDFs into **flashcards** quickly  
-- Get **exam-focused** summaries (definitions, key concepts, processes)  
-- Pay **RM1 per generation** via ToyyibPay — no subscription  
-- Study on **mobile** (swipe, flip, export to PDF)
-
-The app is **stateless**: no user accounts, no long-term database of your notes. Your content is processed for the session and you’re encouraged to download your flashcards before closing.
+This project is **free to use**. Clone the repo, add your own API keys in `.env.local` (never committed), and run it locally or deploy to Vercel. No API keys or secrets are stored in this repository — you keep full control of your credentials.
 
 ---
 
-## Features
+## What It Does
 
-- **Paste or upload** — Raw text, PDF, or DOCX; text is extracted and cleaned  
-- **AI pipeline** — Two steps: (1) exam-focused summarization, (2) flashcard generation (GPT-4o mini)  
-- **Preview then pay** — See a few sample cards, then pay RM1 to unlock the full deck  
-- **Flashcard viewer** — Swipe, tap-to-flip, mark done, progress indicator  
-- **PDF export** — Download your deck as a clean, printable PDF  
-- **Themes** — Light, dark, and a few colour themes  
-- **Privacy** — No accounts; payment via ToyyibPay; session data in Redis/KV for post-payment redirect only  
+- **Paste or upload** — Raw text, PDF, or DOCX. Notes are extracted and cleaned.
+- **AI in two steps** — Summarization (exam-focused) then flashcard generation (one concept per card).
+- **Preview then pay** — See 3 sample cards, then pay RM1 via ToyyibPay to unlock the full deck.
+- **Study & export** — Swipe through cards, tap to flip, download as a clean PDF.
 
----
-
-## Tech stack
-
-- **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS  
-- **Backend:** Next.js API Routes, Server Actions  
-- **AI:** OpenAI (summarize + flashcard steps)  
-- **Payment:** ToyyibPay (Malaysia)  
-- **Session storage:** Upstash Redis / Vercel KV (so “Session expired” after payment is avoided)  
-- **Hosting:** Vercel (or any Node-compatible host)
+Built for **diploma and degree students** in study week or exam week: fast, affordable, no accounts.
 
 ---
 
-## Quick start
+## Tech Stack
+
+- **Frontend:** Next.js 14 (App Router), React, TypeScript, Tailwind CSS
+- **AI:** OpenAI (GPT-4o mini) — summarize + flashcard steps
+- **Payment:** ToyyibPay (RM1 per generation)
+- **Session:** Upstash Redis (so session survives after payment redirect on serverless)
+- **Hosting:** Vercel (recommended)
+
+---
+
+## Quick Start
 
 ```bash
 git clone https://github.com/KhairulTx/LastMinNotes.git
@@ -50,7 +41,7 @@ npm install
 cp .env.example .env.local
 ```
 
-Add your own API keys and config in **`.env.local`** (see [Environment variables](#environment-variables)). **Do not commit `.env.local` or any file containing real keys.**
+Edit **`.env.local`** and add your own keys (OpenAI, ToyyibPay, etc.). See `.env.example` for variable names — **never put real keys in any file you commit.**
 
 ```bash
 npm run dev
@@ -60,58 +51,56 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## Environment variables
+## Environment Variables
 
-All secrets and API keys belong in **`.env.local`** (local) or your host’s **environment variables** (e.g. Vercel). Never commit real values.
+All secrets stay in **`.env.local`** (gitignored). Use **`.env.example`** as a template:
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENAI_API_KEY` | OpenAI API key for summarization and flashcard generation |
-| `TOYYIBPAY_USER_SECRET_KEY` | ToyyibPay user secret (from dashboard) |
-| `TOYYIBPAY_CATEGORY_CODE` | ToyyibPay category code |
-| `APP_URL` | Full app URL (e.g. `https://your-app.vercel.app`) for payment callback |
-| `TOKEN_SECRET` | Secret for JWT access tokens (use a long random string in production) |
-| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL (session after payment) |
-| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token |
+| `OPENAI_API_KEY` | AI summarization and flashcard generation |
+| `TOYYIBPAY_USER_SECRET_KEY` | Payment gateway (RM1) |
+| `TOYYIBPAY_CATEGORY_CODE` | ToyyibPay category |
+| `APP_URL` | Your app URL (e.g. `https://your-app.vercel.app`) |
+| `TOKEN_SECRET` | JWT signing (use a long random string in production) |
+| `UPSTASH_REDIS_REST_URL` | Session store (production) |
+| `UPSTASH_REDIS_REST_TOKEN` | Session store (production) |
 
-See **`.env.example`** for a full list and short notes. Copy it to `.env.local` and replace placeholders with your own values.
-
----
-
-## Project structure
-
-```
-app/
-  page.tsx              # Landing
-  generate/             # Input, preview, pay
-  unlock/               # Full deck after payment
-  api/                   # API routes (AI, payment callback, unlock, flashcards)
-lib/
-  ai/                    # Summarize + flashcard logic
-  payments/              # ToyyibPay
-  security/              # JWT access token
-  kv-session.ts          # Redis/KV session (pending notes, payment verified, deck)
-```
+**Security:** This repo does **not** contain any API keys. Never commit `.env.local` or paste real keys in issues/PRs.
 
 ---
 
-## Deploy (e.g. Vercel)
+## Project Structure
 
-1. Push this repo to your own GitHub (or use [KhairulTx/LastMinNotes](https://github.com/KhairulTx/LastMinNotes)).  
-2. Import the repo in Vercel (or similar).  
-3. Set **all** required env vars in the host’s dashboard (no API keys in the repo).  
-4. Deploy and set `APP_URL` to your live URL.  
-
-Details: **[DEPLOY.md](DEPLOY.md)**.
+| Path | Description |
+|------|-------------|
+| `app/page.tsx` | Landing page |
+| `app/generate/` | Input, preview, pay flow |
+| `app/unlock/` | Full deck after payment |
+| `app/api/ai/` | Summarize & flashcard API routes |
+| `app/api/toyyibpay/` | Create bill & payment callback |
+| `app/api/unlock/` | Post-payment unlock & generation |
+| `lib/ai/` | Summarization and flashcard logic |
+| `lib/kv-session.ts` | Shared session store (Redis) |
+| `lib/payments/toyyibpay.ts` | ToyyibPay integration |
 
 ---
 
-## License and use
+## Deploy (Vercel)
 
-This project is shared for learning and reuse. Feel free to use, fork, and adapt it for your own projects or demos. Do not use it to generate or distribute exam content that violates academic integrity. API keys and secrets are your responsibility; keep them in environment variables and never commit them.
+1. Push this repo to your own GitHub (or use this one).
+2. In [Vercel](https://vercel.com), import the repo and deploy.
+3. In **Project → Settings → Environment Variables**, add the same variables as in `.env.example` with your **own** values.
+4. Redeploy. Set `APP_URL` to your Vercel URL.
+
+See **[DEPLOY.md](DEPLOY.md)** for the full checklist.
 
 ---
 
-## Author
+## License
 
-**KhairulTx** — [GitHub](https://github.com/KhairulTx)
+Free to use. Clone, modify, and deploy with your own API keys. No API keys or secrets are included in this repository.
+
+---
+
+**LastMin Notes** — Exam-ready flashcards in minutes.  
+© 2026 KhairulTX

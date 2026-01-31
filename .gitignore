@@ -3,14 +3,13 @@ node_modules
 .pnp
 .pnp.js
 
-# env — never commit API keys or secrets
+# env — NEVER commit these; they contain API keys and secrets
 .env
-.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-!.env.example
+.env*.local
 
 # next
 .next

@@ -14,22 +14,11 @@ Follow these steps to push your code to GitHub and deploy on Vercel with **secur
 
 ## 2. Push to GitHub
 
-### Repo: KhairulTx / LastMinNotes
-
-If the repo **https://github.com/KhairulTx/LastMinNotes** already exists:
-
-```powershell
-cd "C:\Users\syahm\Desktop\SIDE PROJECT\LastMin Notes\LastMInNote"
-git push -u origin main
-```
-
-(Log in to GitHub when prompted, or use a personal access token.)
-
 ### If you don’t have a repo yet
 
 1. **Create a new repo on GitHub**  
    - Go to [github.com/new](https://github.com/new)  
-   - Name it **LastMinNotes** (or `lastmin-notes`)  
+   - Name it e.g. `lastmin-notes`  
    - Do **not** add a README, .gitignore, or license (you already have them locally)
 
 2. **In your project folder**, run:
@@ -76,7 +65,7 @@ In Vercel: **Project → Settings → Environment Variables**. Add these for **P
 
 | Variable | Required | Example / note |
 |----------|----------|----------------|
-| `OPENAI_API_KEY` | Yes (for AI) | Your OpenAI API key |
+| `OPENAI_API_KEY` | Yes (for AI) | `sk-...` from OpenAI |
 | `TOYYIBPAY_USER_SECRET_KEY` | Yes (for payments) | From ToyyibPay dashboard |
 | `TOYYIBPAY_CATEGORY_CODE` | Yes (for payments) | From ToyyibPay → Category |
 | `APP_URL` | Yes (for payments) | `https://your-app.vercel.app` (your Vercel URL) |
