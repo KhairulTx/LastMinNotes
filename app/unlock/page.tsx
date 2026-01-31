@@ -1,8 +1,7 @@
 'use client';
 
-import { Suspense, useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { FlashcardViewer } from '../generate/components/FlashcardViewer';
 import { Button } from '@/components/ui/button';
@@ -13,25 +12,23 @@ import type { Flashcard } from '@/types/flashcard';
 
 type Status = 'checking' | 'ready' | 'expired' | 'polling';
 
-function UnlockFallback() {
-  return (
-    <main className="min-h-screen flex flex-col">
-      <Header />
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-        <Loader2 className="w-10 h-10 text-foreground animate-spin" />
-        <p className="text-muted-foreground mt-2">Loading…</p>
-      </div>
-      <Footer />
-    </main>
-  );
+/** Read token/session from URL on client only (avoids useSearchParams so page can be statically exported). */
+function useUnlockParams(): { token: string | null; session: string | null; ready: boolean } {
+  const [params, setParams] = useState<{ token: string | null; session: string | null; ready: boolean }>({
+    token: null,
+    session: null,
+    ready: false,
+  });
+  useEffect(() => {
+    const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    setParams({ token: sp.get('token'), session: sp.get('session'), ready: true });
+  }, []);
+  return params;
 }
 
-function UnlockContent() {
-  const searchParams = useSearchParams();
-  const tokenParam = searchParams.get('token');
-  const sessionParam = searchParams.get('session');
-
-  const [status, setStatus] = useState<Status>(sessionParam ? 'polling' : tokenParam ? 'checking' : 'expired');
+export default function UnlockPage() {
+  const { token: tokenParam, session: sessionParam, ready } = useUnlockParams();
+  const [status, setStatus] = useState<Status>('checking');
   const [flashcards, setFlashcards] = useState<Flashcard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,6 +45,12 @@ function UnlockContent() {
   }, []);
 
   useEffect(() => {
+    if (!ready) return;
+    if (!tokenParam && !sessionParam) {
+      setStatus('expired');
+      setError('Missing token or session.');
+      return;
+    }
     if (tokenParam) {
       setStatus('checking');
       fetchWithToken(tokenParam).catch((e) => {
@@ -56,13 +59,13 @@ function UnlockContent() {
       });
       return;
     }
-
     if (!sessionParam) {
       setStatus('expired');
       setError('Missing token or session.');
       return;
     }
 
+    setStatus('polling');
     const interval = setInterval(async () => {
       const base = typeof window !== 'undefined' ? window.location.origin : '';
       const res = await fetch(`${base}/api/unlock?session=${encodeURIComponent(sessionParam)}`);
@@ -94,7 +97,7 @@ function UnlockContent() {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [sessionParam, tokenParam, fetchWithToken]);
+  }, [ready, sessionParam, tokenParam, fetchWithToken]);
 
   const handleExportPdf = () => {
     if (!flashcards?.length) return;
@@ -261,6 +264,19 @@ function UnlockContent() {
     printWindow.close();
   };
 
+  if (!ready) {
+    return (
+      <main className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+          <Loader2 className="w-10 h-10 text-foreground animate-spin" />
+          <p className="text-muted-foreground mt-2">Loading…</p>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen flex flex-col">
       <Header />
@@ -327,12 +343,4 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-}
-
-export default function UnlockPage() {
-  return (
-    <Suspense fallback={<UnlockFallback />}>
-      <UnlockContent />
-    </Suspense>
-  );
 }
