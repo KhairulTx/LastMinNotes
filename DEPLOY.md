@@ -65,7 +65,7 @@ In Vercel: **Project → Settings → Environment Variables**. Add these for **P
 
 | Variable | Required | Example / note |
 |----------|----------|----------------|
-| `OPENAI_API_KEY` | Yes (for AI) | `sk-...` from OpenAI |
+| `OPENAI_API_KEY` | Yes (for AI) | Your OpenAI API key |
 | `TOYYIBPAY_USER_SECRET_KEY` | Yes (for payments) | From ToyyibPay dashboard |
 | `TOYYIBPAY_CATEGORY_CODE` | Yes (for payments) | From ToyyibPay → Category |
 | `APP_URL` | Yes (for payments) | `https://your-app.vercel.app` (your Vercel URL) |
