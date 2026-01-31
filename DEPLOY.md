@@ -1,5 +1,7 @@
 # Deploy LastMin Notes to GitHub + Vercel
 
+**Important:** If a build fails, do **not** click "Redeploy" on that failed deployment — that rebuilds the **same old commit**. To deploy the latest code: push to `main` and wait for the **new** deployment that Vercel creates automatically, or in Vercel go to **Deployments** → **Create Deployment** and select branch `main` (latest commit).
+
 ---
 
 ## Deploy on Vercel (quick steps — already pushed)
