@@ -134,6 +134,6 @@ Generate between 5 and 15 flashcards. Prioritize the most important concepts.
 1. Get key from [platform.openai.com](https://platform.openai.com/api-keys)
 2. Add to `.env.local`:
    ```
-   OPENAI_API_KEY=your_openai_api_key_here
+   OPENAI_API_KEY=sk-...
    ```
 3. Restart dev server: `npm run dev`

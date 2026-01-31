@@ -1,6 +1,35 @@
 # Deploy LastMin Notes to GitHub + Vercel
 
-Follow these steps to push your code to GitHub and deploy on Vercel with **secure API keys** (never in the repo).
+---
+
+## Deploy on Vercel (quick steps — already pushed)
+
+1. **Import repo**  
+   Go to [vercel.com](https://vercel.com) → sign in (GitHub) → **Add New** → **Project** → **Import** the repo **KhairulTx/LastMinNotes**.
+
+2. **Deploy**  
+   Leave **Framework Preset** as Next.js, **Root Directory** as `.` → click **Deploy**. Wait for the first build (it may succeed but some features need env vars).
+
+3. **Add environment variables**  
+   In the project: **Settings** → **Environment Variables**. Add each variable below for **Production** (copy values from your `.env.local` — never paste them in the repo):
+
+   | Name | Value (from your .env.local) |
+   |------|-----------------------------|
+   | `OPENAI_API_KEY` | Your OpenAI key |
+   | `TOYYIBPAY_USER_SECRET_KEY` | Your ToyyibPay secret key |
+   | `TOYYIBPAY_CATEGORY_CODE` | Your ToyyibPay category code |
+   | `APP_URL` | **Your Vercel URL** (e.g. `https://lastminnotes.vercel.app`) |
+   | `TOKEN_SECRET` | Long random string (e.g. 32+ chars) |
+   | `UPSTASH_REDIS_REST_URL` | Your Upstash Redis URL |
+   | `UPSTASH_REDIS_REST_TOKEN` | Your Upstash Redis token |
+
+4. **Redeploy**  
+   **Deployments** → open the **⋯** on the latest deployment → **Redeploy**. This applies the new env vars.
+
+5. **ToyyibPay (production)**  
+   In ToyyibPay dashboard, make sure callback/return URLs use your **Vercel domain** (same as `APP_URL`).
+
+Done. Your app will be live at the URL Vercel gives you (e.g. `https://lastminnotes.vercel.app`).
 
 ---
 

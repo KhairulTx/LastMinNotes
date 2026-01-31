@@ -2,6 +2,11 @@
  * Client-side text extraction from PDF and DOCX files.
  */
 
+/** Type guard: item has a string .str (pdfjs TextItem; TextMarkedContent has no str). */
+function hasStr(item: { str?: unknown }): item is { str: string } {
+  return typeof (item as { str?: unknown }).str === 'string';
+}
+
 export async function extractTextFromFile(file: File): Promise<string> {
   const ext = file.name.split('.').pop()?.toLowerCase();
   if (ext === 'pdf') return extractFromPdf(file);
@@ -20,9 +25,8 @@ async function extractFromPdf(file: File): Promise<string> {
   for (let i = 1; i <= numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const pageText = content.items
-      .map((item: { str?: string }) => item.str || '')
-      .join(' ');
+    const items = content.items as Array<{ str?: unknown }>;
+    const pageText = items.filter(hasStr).map((item) => item.str).join(' ');
     texts.push(pageText);
   }
 
