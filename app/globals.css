@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Light – warm paper + soft charcoal, gentle purple accent */
+  :root,
+  [data-theme="light"] {
+    --background: 40 20% 98%;
+    --foreground: 220 15% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 14%;
+    --primary: 260 25% 22%;
+    --primary-foreground: 40 20% 98%;
+    --secondary: 40 15% 93%;
+    --secondary-foreground: 220 12% 20%;
+    --muted: 220 10% 95%;
+    --muted-foreground: 220 10% 42%;
+    --accent: 263 55% 52%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 12% 90%;
+    --input: 220 12% 91%;
+    --ring: 263 55% 52%;
+    --radius: 0.5rem;
+    --success: 142 45% 38%;
+  }
+
+  /* Dark – deep blue-gray + soft violet accent, easy on eyes */
+  [data-theme="dark"] {
+    --background: 228 28% 12%;
+    --foreground: 210 20% 94%;
+    --card: 226 24% 15%;
+    --card-foreground: 210 20% 94%;
+    --popover: 226 24% 15%;
+    --popover-foreground: 210 20% 94%;
+    --primary: 210 25% 92%;
+    --primary-foreground: 228 28% 12%;
+    --secondary: 230 22% 20%;
+    --secondary-foreground: 210 18% 88%;
+    --muted: 232 18% 22%;
+    --muted-foreground: 215 15% 58%;
+    --accent: 268 55% 58%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 55% 48%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 228 18% 24%;
+    --input: 228 18% 24%;
+    --ring: 268 55% 58%;
+  }
+
+  /* Purple – lavender + violet + soft rose accent, layered not flat */
+  [data-theme="purple"] {
+    --background: 278 30% 94%;
+    --foreground: 272 22% 16%;
+    --card: 285 22% 97%;
+    --card-foreground: 272 22% 16%;
+    --popover: 285 22% 97%;
+    --popover-foreground: 272 22% 16%;
+    --primary: 272 38% 24%;
+    --primary-foreground: 278 20% 96%;
+    --secondary: 270 25% 88%;
+    --secondary-foreground: 272 28% 18%;
+    --muted: 276 20% 90%;
+    --muted-foreground: 272 18% 38%;
+    --accent: 292 52% 48%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 58% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 278 18% 86%;
+    --input: 278 18% 88%;
+    --ring: 292 52% 48%;
+  }
+
+  /* Ocean – sky blue + seafoam teal, two-tone calm */
+  [data-theme="ocean"] {
+    --background: 198 32% 94%;
+    --foreground: 200 22% 16%;
+    --card: 192 25% 97%;
+    --card-foreground: 200 22% 16%;
+    --popover: 192 25% 97%;
+    --popover-foreground: 200 22% 16%;
+    --primary: 198 40% 24%;
+    --primary-foreground: 198 20% 96%;
+    --secondary: 188 28% 88%;
+    --secondary-foreground: 200 30% 18%;
+    --muted: 195 22% 90%;
+    --muted-foreground: 200 18% 38%;
+    --accent: 187 48% 42%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 58% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 195 22% 85%;
+    --input: 195 22% 87%;
+    --ring: 187 48% 42%;
+  }
+
+  /* Forest – sage + moss + soft earth, natural layered */
+  [data-theme="forest"] {
+    --background: 140 22% 94%;
+    --foreground: 145 18% 16%;
+    --card: 138 18% 97%;
+    --card-foreground: 145 18% 16%;
+    --popover: 138 18% 97%;
+    --popover-foreground: 145 18% 16%;
+    --primary: 142 32% 22%;
+    --primary-foreground: 140 18% 96%;
+    --secondary: 135 20% 88%;
+    --secondary-foreground: 145 25% 18%;
+    --muted: 138 16% 90%;
+    --muted-foreground: 142 14% 38%;
+    --accent: 152 42% 38%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 58% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 138 16% 85%;
+    --input: 138 16% 87%;
+    --ring: 152 42% 38%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+}
+
+/* Flashcard: 0.5s flip, hover lift + shadow */
+.flashcard-flip-inner {
+  transition: transform 0.5s ease-in-out, box-shadow 0.25s ease-out;
+}
+.flashcard-flip-inner:hover {
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
