@@ -3,7 +3,7 @@
 import { summarizeForExam } from '@/lib/ai/summarize';
 import { generateFlashcards } from '@/lib/ai/flashcard';
 import { setSession, setPendingNotes, setPaymentVerified } from '@/lib/session-store';
-import { setPendingNotesKV, setPaymentVerifiedKV } from '@/lib/kv-session';
+import { setPendingNotesKV, getPendingNotesKV, setPaymentVerifiedKV } from '@/lib/kv-session';
 import { writeTestPendingNotes } from '@/lib/test-pending-notes';
 import { normalizeText } from '@/lib/apify/client';
 import { SAMPLE_FLASHCARDS } from '@/lib/sample-flashcards';
