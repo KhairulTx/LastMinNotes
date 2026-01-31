@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Zap, Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { FlashcardViewer } from '../generate/components/FlashcardViewer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,7 +13,20 @@ import type { Flashcard } from '@/types/flashcard';
 
 type Status = 'checking' | 'ready' | 'expired' | 'polling';
 
-export default function UnlockPage() {
+function UnlockFallback() {
+  return (
+    <main className="min-h-screen flex flex-col">
+      <Header />
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+        <Loader2 className="w-10 h-10 text-foreground animate-spin" />
+        <p className="text-muted-foreground mt-2">Loading…</p>
+      </div>
+      <Footer />
+    </main>
+  );
+}
+
+function UnlockContent() {
   const searchParams = useSearchParams();
   const tokenParam = searchParams.get('token');
   const sessionParam = searchParams.get('session');
@@ -314,4 +327,12 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+export default function UnlockPage() {
+  return (
+    <Suspense fallback={<UnlockFallback />}>
+      <UnlockContent />
+    </Suspense>
+  );
 }
