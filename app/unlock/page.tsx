@@ -21,7 +21,9 @@ function useUnlockParams(): { token: string | null; session: string | null; read
   });
   useEffect(() => {
     const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    setParams({ token: sp.get('token'), session: sp.get('session'), ready: true });
+    // ToyyibPay may redirect with order_id or ref1 instead of session; use first present.
+    const session = sp.get('session') ?? sp.get('order_id') ?? sp.get('ref1');
+    setParams({ token: sp.get('token'), session, ready: true });
   }, []);
   return params;
 }

@@ -20,9 +20,16 @@ import { generateFlashcards } from '@/lib/ai/flashcard';
  * Pay-first flow: if flashcards don't exist yet, we generate them from pending notes.
  */
 export async function GET(request: NextRequest) {
-  const sessionId = request.nextUrl.searchParams.get('session')?.trim();
+  // ToyyibPay may redirect with order_id or ref1 instead of session; accept any as sessionId.
+  const sessionId = [
+    request.nextUrl.searchParams.get('session'),
+    request.nextUrl.searchParams.get('order_id'),
+    request.nextUrl.searchParams.get('ref1'),
+  ]
+    .find((v) => typeof v === 'string' && v.trim().length > 0)
+    ?.trim();
   if (!sessionId) {
-    return NextResponse.json({ error: 'session required' }, { status: 400 });
+    return NextResponse.json({ error: 'session required (or order_id / ref1 from payment)' }, { status: 400 });
   }
 
   // Already have flashcards? Create one-time token and return. (Check KV/disk if different process.)

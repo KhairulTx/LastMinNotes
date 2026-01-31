@@ -71,6 +71,7 @@ export async function setPendingNotesKV(sessionId: string, notes: string): Promi
     await client.set(prefix(`pending:${sessionId}`), JSON.stringify({ notes, createdAt: Date.now() }), { ex: PENDING_TTL_SEC });
   } catch (e) {
     console.error('Redis setPendingNotes error:', e);
+    throw e; // Surface failure so caller can return error instead of redirecting
   }
 }
 

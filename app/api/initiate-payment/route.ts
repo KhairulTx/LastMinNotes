@@ -6,7 +6,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { setPendingNotes, setPaymentVerified } from '@/lib/session-store';
-import { setPendingNotesKV, setPaymentVerifiedKV, isRedisConfigured } from '@/lib/kv-session';
+import { setPendingNotesKV, getPendingNotesKV, setPaymentVerifiedKV, isRedisConfigured } from '@/lib/kv-session';
 import { writeTestPendingNotes } from '@/lib/test-pending-notes';
 import { normalizeText } from '@/lib/apify/client';
 import { getPaymentUrl } from '@/app/generate/actions';
@@ -59,6 +59,20 @@ export async function POST(request: NextRequest) {
     }
 
     await setPendingNotesKV(sessionId, text);
+
+    // Verify write so we never redirect to payment unless session is in Redis (fixes "session expired" after payment).
+    const stored = await getPendingNotesKV(sessionId);
+    if (!stored) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Could not save your session. Please try again. If this keeps happening, check that Redis (KV) is connected for Production and redeploy.",
+        },
+        { status: 503 }
+      );
+    }
+
     if (process.env.SKIP_PAYMENT_FOR_TEST === '1') {
       await writeTestPendingNotes(sessionId, text);
       setPaymentVerified(sessionId);
