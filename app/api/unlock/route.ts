@@ -8,7 +8,7 @@ import {
   clearGenerating,
   isGenerating,
 } from '@/lib/session-store';
-import { getPendingNotesKV, isPaymentVerifiedKV, getSessionKV, setSessionKV } from '@/lib/kv-session';
+import { getPendingNotesKV, isPaymentVerifiedKV, getSessionKV, setSessionKV, isRedisConfigured } from '@/lib/kv-session';
 import { readTestPendingNotes, writeTestSession, readTestSession } from '@/lib/test-pending-notes';
 import { createAccessToken } from '@/lib/security/token';
 import { summarizeForExam } from '@/lib/ai/summarize';
@@ -46,9 +46,13 @@ export async function GET(request: NextRequest) {
     notes = await readTestPendingNotes(sessionId);
   }
   if (!notes) {
+    const redisOk = await isRedisConfigured();
+    const message = redisOk
+      ? 'Session expired. Please start over from the generate page.'
+      : 'Session storage is not configured on the server. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN (e.g. in Vercel env) so your session persists after payment.';
     return NextResponse.json(
-      { error: 'Session expired. Please start over from the generate page.' },
-      { status: 404 }
+      { error: message },
+      { status: redisOk ? 404 : 503 }
     );
   }
 

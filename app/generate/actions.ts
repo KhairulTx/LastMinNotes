@@ -36,6 +36,17 @@ export async function initiatePayment(rawText: string, returnUrlBase: string): P
       await writeTestPendingNotes(sessionId, text);
     }
 
+    // In production, never redirect to payment unless we can read back the session (proves Redis is working).
+    if (process.env.SKIP_PAYMENT_FOR_TEST !== '1') {
+      const stored = await getPendingNotesKV(sessionId);
+      if (!stored) {
+        return {
+          ok: false,
+          error: "We couldn't save your session. Please try again. (If this keeps happening, add Upstash Redis: set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in your server environment.)",
+        };
+      }
+    }
+
     // --- TEST MODE: skip real payment, go straight to unlock (set SKIP_PAYMENT_FOR_TEST=1 in .env.local). ---
     if (process.env.SKIP_PAYMENT_FOR_TEST === '1') {
       setPaymentVerified(sessionId);

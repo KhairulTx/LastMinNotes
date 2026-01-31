@@ -29,10 +29,16 @@ async function getRedis(): Promise<RedisLike | null> {
     const client = new Redis({ url, token });
     redisClient = client as RedisLike;
     return redisClient;
-  } catch {
+  } catch (e) {
+    console.error('Redis init error (check UPSTASH_REDIS_REST_URL/TOKEN):', e);
     redisClient = null;
     return null;
   }
+}
+
+/** Use in production to ensure session storage is available before redirecting to payment. */
+export async function isRedisConfigured(): Promise<boolean> {
+  return (await getRedis()) !== null;
 }
 
 const prefix = (s: string) => `lastmin:${s}`;
