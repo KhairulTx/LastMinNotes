@@ -30,9 +30,11 @@ export async function initiatePayment(rawText: string, returnUrlBase: string): P
   try {
     const sessionId = generateSessionId();
     setPendingNotes(sessionId, text);
-    // Persist notes so unlock API can read after payment (different serverless instance)
-    await writeTestPendingNotes(sessionId, text);
+    // Persist notes so unlock API can read after payment (different serverless instance). Use KV in production; file only in test mode (Vercel fs is read-only).
     await setPendingNotesKV(sessionId, text);
+    if (process.env.SKIP_PAYMENT_FOR_TEST === '1') {
+      await writeTestPendingNotes(sessionId, text);
+    }
 
     // --- TEST MODE: skip real payment, go straight to unlock (set SKIP_PAYMENT_FOR_TEST=1 in .env.local). ---
     if (process.env.SKIP_PAYMENT_FOR_TEST === '1') {

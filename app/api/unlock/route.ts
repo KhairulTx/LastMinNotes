@@ -79,7 +79,9 @@ export async function GET(request: NextRequest) {
     }
     setSession(sessionId, flashcards);
     await setSessionKV(sessionId, flashcards);
-    await writeTestSession(sessionId, flashcards);
+    if (process.env.SKIP_PAYMENT_FOR_TEST === '1') {
+      await writeTestSession(sessionId, flashcards);
+    }
     const token = await createAccessToken(sessionId);
     return NextResponse.json({ token });
   } catch (e) {
